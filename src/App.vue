@@ -1,47 +1,71 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+<script setup>
+import { ref } from 'vue';
+
+const items = ref([
+  { id: 1, label: 'Item 1', hecha: false },
+  { id: 2, label: 'Item 2', hecha: false },
+  { id: 3, label: 'Item 3', hecha: false },
+]);
+
+const newItem = ref('');
+const mostrar = ref(false);
+
+const agregaItem = () => {
+  items.value.push({
+    id: items.value.length + 1,
+    label: newItem.value,
+    hecha: false,
+  });
+
+  newItem.value = '';
+};
+
+const mostrarFormulario = () => {
+  mostrar.value = !mostrar.value;
+  newItem.value = '';
+};
+
+const marcar = (item) => {
+  item.hecha = !item.hecha;
+};
+
+const eliminarItem = (item) => {
+  //Preferida para entornos reactivos
+  items.value = items.value.filter((i) => i.id !== item.id);
+
+  //const index = items.value.indexOf(item);
+  //const index = items.value.findIndex(i => i.id === item.id);//Más seguro
+  //if(index !== -1){
+  //  items.value.splice(index, 1);
+  //}
+};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <h1>Shoping List</h1>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <button v-if="!mostrar" class="btn btn-primary" @click="mostrarFormulario">Editar</button>
+
+  <form v-else class="add-item-form" @submit.prevent="agregaItem">
+    <input type="text" v-model.trim="newItem" placeholder="Ingrese un valor" />
+
+    <button :disabled="newItem.length === 0" class="btn btn-primary">Agregar</button>
+
+    <button @click="mostrarFormulario" class="btn btn-primary">Listo</button>
+  </form>
+
+  <ul v-if="items.length > 0">
+    <div v-for="item in items" :key="item.id">
+      <li v-if="!mostrar" @click="marcar(item)" :class="{ strikeout: item.hecha }">
+        {{ item.label }}
+      </li>
+
+      <input v-if="mostrar" type="text" v-model="item.label" />
+      <button v-if="mostrar" @click="eliminarItem(item)">Eliminar</button>
     </div>
-  </header>
+  </ul>
 
-  <main>
-    <TheWelcome />
-  </main>
+  <p v-else>Nada que mostrar</p>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+Spring-MVC-and-Hibernate-Project
